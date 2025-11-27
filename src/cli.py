@@ -47,6 +47,20 @@ def build_index():
         raise typer.Exit(code=1)
 
 @app.command()
+def reset_index():
+    """
+    Delete the existing index (collection) in Qdrant.
+    Use this when changing embedding models.
+    """
+    from .rag_engine import reset_index
+    try:
+        reset_index()
+        typer.echo("Index reset successfully.")
+    except Exception as e:
+        typer.echo(f"Error resetting index: {e}")
+        raise typer.Exit(code=1)
+
+@app.command()
 def search(query: str = typer.Argument(..., help="Query string")):
     """
     Search the knowledge base.

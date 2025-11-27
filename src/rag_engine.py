@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import List
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext
 from llama_index.vector_stores.qdrant import QdrantVectorStore
-from llama_index.embeddings.gemini import GeminiEmbedding
-from llama_index.llms.gemini import Gemini
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# from llama_index.llms.gemini import Gemini  # Removed
 from llama_index.core import Settings
 import qdrant_client
 from dotenv import load_dotenv
@@ -14,19 +14,25 @@ load_dotenv()
 # Configuration
 QDRANT_URL = "http://localhost:6333"
 COLLECTION_NAME = "ojt_knowledge"
-EMBEDDING_MODEL_NAME = "models/text-embedding-004"
+# Using a multilingual model suitable for Japanese
+EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large"
 
 def get_qdrant_client():
     return qdrant_client.QdrantClient(url=QDRANT_URL)
 
 def setup_settings():
-    api_key = os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-        raise ValueError("GOOGLE_API_KEY environment variable is not set.")
-    Settings.embed_model = GeminiEmbedding(model_name=EMBEDDING_MODEL_NAME, api_key=api_key)
-    Settings.llm = Gemini(api_key=api_key)
+    # Use local embedding model
+    Settings.embed_model = HuggingFaceEmbedding(model_name=EMBEDDING_MODEL_NAME)
+    # No LLM needed for retrieval only
+    Settings.llm = None
+
+def reset_index():
+    client = get_qdrant_client()
+    client.delete_collection(collection_name=COLLECTION_NAME)
+    print(f"Collection {COLLECTION_NAME} deleted.")
 
 def build_index(source_dir: Path):
+
     setup_settings()
     client = get_qdrant_client()
     vector_store = QdrantVectorStore(client=client, collection_name=COLLECTION_NAME)
@@ -51,7 +57,14 @@ def search(query: str, top_k: int = 5) -> str:
 
     # Load index from vector store
     index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
-    query_engine = index.as_query_engine(similarity_top_k=top_k)
 
-    response = query_engine.query(query)
-    return str(response)
+    # Use retriever instead of query engine (no LLM synthesis)
+    retriever = index.as_retriever(similarity_top_k=top_k)
+    nodes = retriever.retrieve(query)
+
+    # Format results
+    results = []
+    for node in nodes:
+        results.append(f"Content: {node.text}\nScore: {node.score}")
+
+    return "\n\n".join(results)
