@@ -1,3 +1,7 @@
+# AI-Knowledge
+qdrant_storage/
+ai_knowledge/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

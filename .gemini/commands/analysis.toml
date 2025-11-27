@@ -1,0 +1,8 @@
+description = "Add a new analysis result"
+prompt = """
+User Input: /analysis {{args}}
+
+Task: Convert the above input into a JSON line for the Analysis schema.
+Schema: {"title": "...", "summary": "...", "findings": "...", "related_files": ["..."]}
+Ensure the output is a single line JSON.
+"""

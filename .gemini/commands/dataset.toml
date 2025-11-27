@@ -1,0 +1,8 @@
+description = "Add a new dataset definition"
+prompt = """
+User Input: /dataset {{args}}
+
+Task: Convert the above input into a JSON line for the Dataset schema.
+Schema: {"name": "...", "description": "...", "schema_info": "...", "location": "..."}
+Ensure the output is a single line JSON.
+"""

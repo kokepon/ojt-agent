@@ -1,0 +1,8 @@
+description = "Add a new rule"
+prompt = """
+User Input: /rule {{args}}
+
+Task: Convert the above input into a JSON line for the Rule schema.
+Schema: {"title": "...", "rule_content": "...", "context": "..."}
+Ensure the output is a single line JSON.
+"""

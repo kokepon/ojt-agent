@@ -1,0 +1,8 @@
+description = "Add a new term to the glossary"
+prompt = """
+User Input: /glossary {{args}}
+
+Task: Convert the above input into a JSON line for the Glossary schema.
+Schema: {"term": "...", "definition": "...", "category": "...", "synonyms": ["..."]}
+Ensure the output is a single line JSON.
+"""
