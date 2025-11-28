@@ -4,7 +4,6 @@ from typing import List
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-# from llama_index.llms.gemini import Gemini  # Removed
 from llama_index.core import Settings
 import qdrant_client
 from dotenv import load_dotenv
