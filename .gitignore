@@ -1,6 +1,11 @@
 # AI-Knowledge
-qdrant_storage/
-ai_knowledge/
+qdrant_storage/*
+ai_knowledge/*
+!qdrant_storage/*/
+!ai_knowledge/*/
+qdrant_storage/*/*
+ai_knowledge/*/*
+!**/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
