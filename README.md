@@ -31,8 +31,14 @@ uv run python -m src.cli add '{"term": "...", "definition": "..."}' --type gloss
 - `analysis`: 分析結果 (必須フィールド: `title`, `summary`, `findings`)
 
 ### 2. 知識のバリデーション
+**単一ファイルのチェック**:
 ```bash
 uv run python -m src.cli validate ai_knowledge/raw/glossary.jsonl --type glossary
+```
+
+**一括チェック** (ai_knowledge/raw 内の全ファイルを検証):
+```bash
+uv run python -m src.cli validate
 ```
 
 ### 3. 知識の承認（手動）

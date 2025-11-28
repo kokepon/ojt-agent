@@ -1,26 +1,58 @@
 import typer
 from pathlib import Path
+from typing import Optional
 from .knowledge_manager import validate_file, SCHEMA_MAP
 
 app = typer.Typer()
 
 @app.command()
 def validate(
-    file_path: Path = typer.Argument(..., help="Path to the JSONL file to validate"),
-    type: str = typer.Option(..., help="Type of knowledge (glossary, dataset, rule, analysis)")
+    file_path: Optional[Path] = typer.Argument(None, help="Path to the JSONL file to validate. If omitted, validates all files in ai_knowledge/raw."),
+    type: Optional[str] = typer.Option(None, help="Type of knowledge (glossary, dataset, rule, analysis). Required if file_path is specified.")
 ):
     """
     Validate a JSONL file against the defined schema.
+    If no file is specified, validates all standard files in ai_knowledge/raw.
     """
-    if type not in SCHEMA_MAP:
-        typer.echo(f"Invalid type. Must be one of: {', '.join(SCHEMA_MAP.keys())}")
-        raise typer.Exit(code=1)
+    if file_path:
+        # Single file validation
+        if not type:
+            typer.echo("Error: --type is required when specifying a file.")
+            raise typer.Exit(code=1)
 
-    if validate_file(file_path, type):
-        typer.echo(f"Validation successful: {file_path}")
+        if type not in SCHEMA_MAP:
+            typer.echo(f"Invalid type. Must be one of: {', '.join(SCHEMA_MAP.keys())}")
+            raise typer.Exit(code=1)
+
+        if validate_file(file_path, type):
+            typer.echo(f"Validation successful: {file_path}")
+        else:
+            typer.echo(f"Validation failed: {file_path}")
+            raise typer.Exit(code=1)
     else:
-        typer.echo(f"Validation failed: {file_path}")
-        raise typer.Exit(code=1)
+        # Bulk validation
+        base_dir = Path("ai_knowledge/raw")
+        if not base_dir.exists():
+            typer.echo(f"Directory not found: {base_dir}")
+            return
+
+        all_passed = True
+        for key in SCHEMA_MAP.keys():
+            target_file = base_dir / f"{key}.jsonl"
+            if target_file.exists():
+                typer.echo(f"Validating {target_file} as {key}...")
+                if validate_file(target_file, key):
+                    typer.echo(f"  OK")
+                else:
+                    typer.echo(f"  FAILED")
+                    all_passed = False
+            else:
+                # typer.echo(f"Skipping {key} (file not found)")
+                pass
+
+        if not all_passed:
+            raise typer.Exit(code=1)
+        typer.echo("Bulk validation completed.")
 
 @app.command()
 def build_index():
